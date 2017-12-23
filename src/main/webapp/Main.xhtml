@@ -1,0 +1,233 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:a="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui" xmlns:pt="http://xmlns.jcp.org/jsf/passthrough" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+	
+	
+<h:head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1" http-equiv="X-UA-Conpatible" />
+    <h:outputStylesheet library="css" name="bootstrap.min.css" />
+    
+    <link type="text/css" rel="stylesheet" href="css/twenty20.css" />
+    <link type="text/css" rel="stylesheet" href="css/response.css" />
+    <title>Report Builder</title>
+
+</h:head>
+
+
+
+<h:body>  
+ 
+ <div class="container">
+        <div class="navbar navbar-inverse">
+            <div class="navbar-brand" style="bitBold">
+		
+		<h:outputText id="displayTitle" value="Report Builder" />
+	    
+	    </div>
+        </div>
+	<b><hr/> </b>
+	<h:form id="reportForm" enctype="multipart/form-data" >  
+			
+		<div class="panel panel-default panel-table">
+		    <div class="panel-heading">
+			<div class="tr">
+			    <div class="td"><b>Select Tables</b></div>
+			    <div class="td"><b>Select Columns</b></div>
+			    <div class="td"><b>Build Query</b></div>
+			</div>
+		    </div>
+		    <div class="panel-body">
+			<div class="tr">
+			    <div class="td">
+			    
+				<table class="table" style="width:200px">
+				  
+				  <tbody>
+					<tr>
+						<td> <h:outputLabel for="reportName"  styleClass="fontClass" >Select Tables</h:outputLabel> </td>
+						
+					</tr>
+					<tr>
+						<td> 
+							<h:selectManyListbox id="pType" value="#{reportManager.selectedTables}" styleClass="general" style="width:200px;">  
+									 <f:selectItems value="#{reportManager.tables}"
+								            var="table"
+								            itemValue="#{table.tableName}"
+								            itemLabel="#{table.tableName}" /> 
+								
+							</h:selectManyListbox>
+						</td>
+					</tr>
+					<tr>
+						 <td>
+							 <p:commandButton value="Next" action="#{reportManager.populateDetailsInSelectedTables}" ajax="true"  styleClass="fontClass">
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton>  
+						</td>
+					</tr>
+					
+					
+				  </tbody>
+				 </table>
+			    
+				
+			    
+				 
+
+
+			    </div>
+			    <div class="td">
+				<p:dataTable id="selected" var="table" value="#{reportManager.selectedTabs}"  emptyMessage="No tables selected yet." style="width:400px;">
+				<p:column>
+					  <p:column headerText="Table Name ">
+						   <b> <h:outputText value="Table - #{table.tableName}. Edit the Column Alias field to something you like to see on the report. " styleClass="underConstruction" /></b>
+						</p:column>
+					
+					<p:dataTable id="subDataTable" value="#{table.columns}" var="column" emptyMessage="No columns prsent. Check out with Admin." style="width:400px;">
+
+					     <p:column headerText="Column Alias ">
+						    <h:inputText value="#{column.title}" />
+						</p:column>
+						
+					     <p:column headerText="Column Name">
+						    <h:outputText value="#{column.field}" />
+						</p:column>
+						
+						<p:column headerText="">
+						  
+							<h:selectBooleanCheckbox value="#{column.wantedInReport}"  />
+							
+						
+						</p:column>
+
+					    
+					</p:dataTable>
+				</p:column>
+			       
+			        
+			    </p:dataTable>
+			     <b> <h:outputText value="Table - #{reportManager.calculationColumnsTable.tableName}.  " styleClass="underConstruction" /></b>
+			    <p:dataTable id="CalculatedTable" value="#{reportManager.calculationColumnsTable.columns}" var="column" emptyMessage="No calculation columns yet for this report." style="width:400px;">
+
+					     <p:column headerText="Column Alias ">
+						    <h:inputText value="#{column.title}" />
+						</p:column>
+						
+					     <p:column headerText="Data Type">
+						    <h:selectOneMenu id="dataType" value="#{column.dataType}" >  
+									 <f:selectItems value="#{reportManager.dataTypes}"
+								            var="type"
+								            itemValue="#{type}"
+								            itemLabel="#{type}" /> 
+								
+								</h:selectOneMenu>
+						</p:column>
+						
+						<p:column headerText="">
+						  
+							<p:commandLink value="Remove Column" action="#{reportManager.removeColumn(column)}" ajax="true"  styleClass="fontClass">
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandLink>
+							
+						
+						</p:column>
+
+					    
+					</p:dataTable>
+				<p:commandButton value="Add Column Not In Table" action="#{reportManager.addColumnToReport}" ajax="true"  styleClass="fontClass">
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton>
+				 
+			    </div>
+			    <div class="td">
+				<table class="table">
+				  
+				  <tbody>
+					<tr>
+						<td> <h:outputLabel for="reportName"  styleClass="fontClass" >Report Name</h:outputLabel> </td>
+						
+					</tr>
+					<tr>
+						<td> <p:inputText id="reportName" value="#{reportManager.report.reportName}"  styleClass="fontClass"  disabled="#{not(reportManager.editReportName)}"/></td>
+					</tr>
+					<tr>
+						 <td><h:outputLabel for="queryBox"  styleClass="fontClass" >Build Query</h:outputLabel>  </td>
+					</tr>
+					<tr>
+						 <td><p:inputTextarea id="queryBox" value="#{reportManager.report.query}" class="form-control" styleClass="fontClass"  pt:required="required" rows="8" col = "25" />  </td>
+					</tr>
+					<tr>
+						<td> <h:outputText id="valStatus" value="#{reportManager.queryValidation}"  styleClass="fontClass"/></td>
+					</tr>
+					<tr>
+						<td> <h:outputLabel styleClass="fontClass" >Date details will just help in speedying up the sql query build process related to dates. No way it will generate 100 % working queries</h:outputLabel> </td>
+						
+					</tr>
+					<tr>
+						<td> <h:outputLabel for="fromDate"  styleClass="fontClass" >From Date If Applicable</h:outputLabel> </td>
+						
+					</tr>
+					<tr>
+						<td> <p:inputText id="fromDate" value="#{reportManager.report.fromDate}"  styleClass="fontClass"  /></td>
+						<p:watermark for="fromDate" value="dd-MM-yyyy" id="watermarkfromDate" />
+					</tr>
+					<tr>
+						<td> <h:outputLabel for="toDate"  styleClass="fontClass" >To Date If Applicable</h:outputLabel> </td>
+					</tr>
+					<tr>
+						<td> <p:inputText id="toDate" value="#{reportManager.report.toDate}"  styleClass="fontClass"  /></td>
+						 <p:watermark for="toDate" value="dd-MM-yyyy" id="watermark" />
+					</tr>
+					<tr>
+						<td> <h:outputLabel for="dateRangeParam"  styleClass="fontClass" >Date Parameter</h:outputLabel> </td>
+					</tr>
+					<tr>
+						<td> <p:inputText id="dateRangeParam" value="#{reportManager.report.dateRangeParam}"  styleClass="fontClass"  />
+						<p:watermark for="dateRangeParam" value="Enter for sql date range query" id="watermarkdateRangeParam" />
+						</td>
+					</tr>
+					<tr>
+						
+						<td> <p:commandButton value="Update Query With Date Inputs" action="#{reportManager.updateQuery}" ajax="true"  >
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton> 
+						</td>
+					</tr>
+					<tr>
+						 <td>
+							<p:commandButton value="Validate Query" action="#{reportManager.validate}" ajax="true"  >
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton>  
+						 </td>
+					</tr>
+				  </tbody>
+				 </table>
+				    
+				
+					
+
+			    </div>
+			</div>
+		    </div>
+		   
+		</div>
+	<b><hr/> </b>
+ 
+		<p:commandButton value="Generate Report" action="#{reportManager.generateReport}" ajax="true"  >
+						<f:ajax execute="@form" render="@none" />	
+					</p:commandButton>  
+		<p:commandButton value="Save Report" action="#{reportManager.saveReport}"   >
+			
+		</p:commandButton>  
+		
+		<p:commandButton value="Go Back" action="#{reportManager.goback}"   >
+			
+		</p:commandButton> 
+		</h:form>
+	
+</div>	
+  
+</h:body>  
+</html>  
