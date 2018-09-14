@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:a="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui" xmlns:pt="http://xmlns.jcp.org/jsf/passthrough" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+	
+	
+<h:head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1" http-equiv="X-UA-Conpatible" />
+    <h:outputStylesheet library="css" name="bootstrap.min.css" />
+    
+    <link type="text/css" rel="stylesheet" href="css/twenty20.css" />
+    <link type="text/css" rel="stylesheet" href="css/response.css" />
+    <title>Report Builder</title>
+    
+    <style>
+    .input:disabled {color: #800000 }
+    </style>
+
+</h:head>
+
+
+
+<h:body>  
+ 
+ <div class="container">
+        <div class="navbar navbar-inverse">
+            <div class="navbar-brand" style="bitBold">
+		
+		<h:outputText id="displayTitle" value="Report Builder" />
+	    
+	    </div>
+        </div>
+	<b><hr/> </b>
+	<h:form id="reportForm" enctype="multipart/form-data" >  
+			
+		<div class="panel panel-default panel-table">
+		    <div class="panel-heading">
+			<div class="tr">
+			    <div class="td"><b>Select Tables</b></div>
+			    <div class="td"><b>Select Columns</b></div>
+			    <div class="td"><b>Build Query</b></div>
+			</div>
+		    </div>
+		    <div class="panel-body">
+			<div class="tr">
+			    <div class="td">
+			    
+				<table class="table" style="width:200px">
+				  
+				  <tbody>
+				  <tr>
+						<td> <h:outputLabel for="moduleName"  styleClass="fontClass" >Select Module</h:outputLabel> </td>
+						
+					</tr>
+					 <tr>
+						<td>  <h:selectOneMenu id="moduleName" value="#{reportManagerNew.moduleName}" styleClass="general" >  
+												 <f:selectItems value="#{reportManagerNew.moduleNames}"
+												    var="module"
+												    itemValue="#{module.moduleName}"
+												    itemLabel="#{module.moduleName}" /> 
+									
+											</h:selectOneMenu> </td>
+						
+					</tr>
+						<tr>
+						 <td>
+							 <p:commandButton value="Fetch Tables by Module" action="#{reportManagerNew.loadTablesByModule}" ajax="true"  styleClass="fontClass">
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton>  
+						</td>
+					</tr>
+					<tr>
+						<td> <h:outputLabel for="reportName"  styleClass="fontClass" >Select Tables</h:outputLabel> </td>
+						
+					</tr>
+					<tr>
+						<td> 
+							<h:selectManyListbox id="pType" value="#{reportManagerNew.selectedTables}" styleClass="general" style="width:200px;">  
+									 <f:selectItems value="#{reportManagerNew.tables}"
+								            var="table"
+								            itemValue="#{table.tableName}"
+								            itemLabel="#{table.tableName}" /> 
+								
+							</h:selectManyListbox>
+						</td>
+					</tr>
+					<tr>
+						 <td>
+							 <p:commandButton value="Next" action="#{reportManagerNew.populateDetailsInSelectedTables}" ajax="true"  styleClass="fontClass">
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton>  
+						</td>
+					</tr>
+					
+					
+				  </tbody>
+				 </table>
+			    
+				
+			    
+				 
+
+
+			    </div>
+			    <div class="td">
+				<p:dataTable id="selected" var="table" value="#{reportManagerNew.selectedTabs}"  emptyMessage="No tables selected yet." style="width:400px;">
+				<p:column>
+					  <p:column headerText="Table Name ">
+						   <b> <h:outputText value="Table - #{table.tableName}. Edit the Column Alias field to something you like to see on the report. " styleClass="underConstruction" /></b>
+						</p:column>
+						
+					 <p:column headerText="Click to select all columns for this table ">
+					  <p:commandButton value="Click to select all columns for this table" action="#{reportManagerNew.selectAllColumnsForTable(table.tableName)}" ajax="true"  >
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton> 
+
+						<p:commandButton value="Click to reset all selection" action="#{reportManagerNew.deselectAllColumnsForTable(table.tableName)}" ajax="true"  >
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton>							
+					</p:column>
+					
+					<p:dataTable id="subDataTable" value="#{table.columns}" var="column" emptyMessage="No columns prsent. Check out with Admin." style="width:400px;">
+
+					     <p:column headerText="Column Alias ">
+						    <h:inputText value="#{column.title}" />
+						</p:column>
+						
+					     <p:column headerText="Column Name">
+						    <h:outputText value="#{column.field}" />
+						</p:column>
+						
+						<p:column headerText="">
+						  
+							<h:selectBooleanCheckbox value="#{column.wantedInReport}"  />
+							
+						
+						</p:column>
+
+					    
+					</p:dataTable>
+				</p:column>
+			       
+			        
+			    </p:dataTable>
+			    
+				 
+			    </div>
+			    <div class="td">
+				<table class="table">
+				  
+				  <tbody>
+					<tr>
+						<td> <h:outputLabel for="reportName"  styleClass="fontClass" >Report Name</h:outputLabel> </td>
+						
+					</tr>
+					<tr>
+						<td> <p:inputText id="reportName" value="#{reportManagerNew.report.reportName}" style="color:#8B0000;font-size: 15px;"  pt:required="required"  disabled="#{not(reportManagerNew.editReportName)}"/></td>
+					</tr>
+					
+					
+					<tr>
+						 <td><h:outputLabel for="queryBox"  styleClass="fontClass" >Build Query</h:outputLabel>  </td>
+					</tr>
+					<tr>
+						 <td><p:inputTextarea id="queryBox" value="#{reportManagerNew.report.query}" class="form-control" styleClass="fontClass"  pt:required="required" rows="8" col = "25" />  </td>
+					</tr>
+					<tr>
+						<td> <h:outputText id="valStatus" value="#{reportManagerNew.queryValidation}"  styleClass="fontClass"/></td>
+					</tr>
+					
+					<tr>
+						 <td>
+							<p:commandButton value="Validate Query" action="#{reportManagerNew.validate}" ajax="true"  >
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandButton>  
+						 </td>
+					</tr>
+					<tr>
+						 <td>
+							 <p:commandButton value="Open Query Builder" icon="ui-icon-extlink" action="#{reportManagerNew.showReportBuilder}"  styleClass="fontClass" >
+		
+	    					</p:commandButton>  
+						 </td>
+					</tr>
+				  </tbody>
+				 </table>
+				    
+				
+					
+
+			    </div>
+			</div>
+		    </div>
+		   
+		</div>
+	<b><hr/> </b>
+	<h:commandButton  value="Generate Report As PDF" action="#{reportManagerNew.generateReport('pdf')}"    class="btn btn-primary" >   
+	
+	</h:commandButton>
+	
+	
+		
+		
+		
+		
+		<h:commandButton  value="Generate Report As Excel" action="#{reportManagerNew.generateReport('xls')}"    class="btn btn-primary" >   
+	
+	</h:commandButton>
+	
+		
+		<h:commandButton value="Save Report" action="#{reportManagerNew.saveReport('xls')}"   >
+			
+		</h:commandButton>  
+		
+		
+		
+		<h:link value="Go Back" outcome="ReportsNew" />
+		
+		
+		</h:form>
+	
+</div>	
+  
+</h:body>  
+</html>  

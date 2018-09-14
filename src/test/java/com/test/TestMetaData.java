@@ -52,7 +52,7 @@ public class TestMetaData {
 		columns.add(column4);
 		columns.add(column5);
 		columns.add(column6);
-		repService.generateReport("select ulb_id, receipt_amount, bal_amount, name_owner, address, receipt_date  from receipt_print where bal_amount = 0", columns, "repName");
+		repService.generateReport("select ulb_id, receipt_amount, bal_amount, name_owner, address, receipt_date  from receipt_print where bal_amount = 0", columns, "Report 1", "csv", null);
 	}
 	
 	@Test
@@ -64,7 +64,7 @@ public class TestMetaData {
 		columns.add(column1);
 		columns.add(column2);
 	
-		repService.generateReportBetweenDateRange("select ulb_id, sum(receipt_amount) as \"Collection Amount\"   from receipt_print group by ulb_id ", columns, "Collection Report", "01-01-2017", "20-12-2017");
+		repService.generateReportBetweenDateRange("select ulb_id, sum(receipt_amount) as \"Collection Amount\"   from receipt_print group by ulb_id ", columns, "Collection Report", "01-01-2017", "20-12-2017", "pdf", null);
 	}
 	
 	@Test
@@ -76,7 +76,7 @@ public class TestMetaData {
 		columns.add(column1);
 		columns.add(column2);
 	
-		repService.generateReport("select ulb_id, count(receipt_number) as \"Count of Receipt With Part Payment\" from receipt.receipt_print group by ulb_id", columns, "Count of Receipt With Part Payment");
+		repService.generateReport("select ulb_id, count(receipt_number) as \"Count of Receipt With Part Payment\" from receipt.receipt_print group by ulb_id", columns, "Count of Receipt With Part Payment", "pdf", null);
 	}
 
 }

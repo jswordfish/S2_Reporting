@@ -1,0 +1,99 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+xmlns:h="http://xmlns.jcp.org/jsf/html"  
+xmlns:f="http://xmlns.jcp.org/jsf/core"
+xmlns:p="http://primefaces.org/ui"
+xmlns:ui="http://java.sun.com/jsf/facelets"
+xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<h:head>  
+<title>Login to Report Server</title>  
+<h:outputStylesheet name="css/bootstrap.min.css"/>  
+
+
+<link type="text/css" rel="stylesheet" href="css/twenty20.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+	integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+	crossorigin="anonymous"></script>
+	
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" > </link>
+
+
+</h:head>  
+<body>
+
+
+
+    <div id="login-overlay" class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+            
+              <h4 class="modal-title" id="myModalLabel">Login to Reporting Engine</h4>
+          </div>
+          <div class="modal-body">
+              <div class="row">
+                  <div class="col-xs-6">
+                      <div class="well">
+                          <h:form id="login-form" class="form-horizontal" enctype="multipart/form-data">  
+                              <div class="form-group">
+					
+					<label for="name-id" class="control-label">Username</label>
+                                  
+					
+					<h:inputText id="name-id" value="#{userManagerNew.user}" class="form-control"   pt:required="required"  style="display:block;width:220px">  
+					
+					</h:inputText>  
+					
+					<span class="help-block"></span>
+				   
+                              </div>
+                              <div class="form-group">
+                                  <label for="password" class="control-label">Password</label>
+                                  <h:inputSecret id="password-id" value="#{userManagerNew.password}" class="form-control"   pt:required="required" style="display:block;width:220px" >  
+					  
+					</h:inputSecret>  
+                                  <span class="help-block"></span>
+                              </div>
+                              <div id="loginErrorMsg" class="alert alert-error hide" >Wrong username or password</div>
+                              <div class="checkbox">
+                                  <p class="help-block"><a href="ForgotUserPassword.xhtml" class="btn btn-default btn-block">Forgot User or Password</a></p>
+                                  
+                              </div>
+                              <div class="form-group">
+                              <h:selectOneMenu id="uid" value="#{userManagerNew.ulbId}" styleClass="general" >  
+												 <f:selectItems value="#{userManagerNew.ulbs}"
+												    var="ulb"
+												    itemValue="#{ulb.ulbId}"
+												    itemLabel="#{ulb.ulbName}" /> 
+									
+											</h:selectOneMenu>
+								</div>
+                              <h:commandButton value="Login" action="#{userManagerNew.login}" class="btn btn-success col-sm-7" style="width:100px;height:40px;font-size:12px;font-family: Verdana, Arial, Helvetica, sans-serif;font-weight:bold;-moz-border-radius: 35px;border-radius: 35px;"></h:commandButton>  
+                              
+                          </h:form>
+                      </div>
+                  </div>
+                  <div class="col-xs-6">
+                      <p class="lead">Register and generate your own reports<span class="text-success"></span></p>
+                      <ul class="list-unstyled" style="line-height: 2">
+                          <li><span class="fa fa-check text-success"></span> Selects tables and fields for report</li>
+                          <li><span class="fa fa-check text-success"></span> Reports mapped to SQL Queries</li>
+                          <li><span class="fa fa-check text-success"></span>  Local Languages Supported</li>
+                          <li><span class="fa fa-check text-success"></span> Support for Indian Languages</li>
+                          <li><span class="fa fa-check text-success"></span> Based on OLAP Data</li>
+                          <li><a href="ReadMore.xhtml"><u>Read more</u></a></li>
+                      </ul>
+                      <p><a href="Register.xhtml" class="btn btn-info btn-block">Yes please, register now!</a></p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  
+  </body>
+</html>  

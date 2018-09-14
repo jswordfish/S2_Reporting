@@ -36,6 +36,11 @@ public class UserManager {
 			return "Error.xhtml?faces-redirect=true";
 		}
 		
+		if(user.equals("admin") && password.equals("secret")) {
+			login = true;
+			return "allUlbs.xhtml?faces-redirect=true";
+		}
+		
 		if(!(password.equals("secret") && user.equals("demo.user"))) {
 			setErrorTitle("Invalid Credentials");
 			setErrorDetails("Try again");

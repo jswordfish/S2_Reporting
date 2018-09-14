@@ -27,39 +27,34 @@
  <bean id="confUtil" class="com.innowave.mahaulb.reports.util.ConfUtil">
 	<property name="documentsLocation" value="D:\apache-tomcat-8.0.3\webapps\file-server\reports"></property>
 	<property name="documentsServerBaseUrl" value="http://localhost/file-server/reports"></property>
+	<property name="logoPathToSave" value="D:\\apache-tomcat-8.0.3\\webapps\\file-server\\ulbLogos"></property>
+	<property name="logoImageServerBaseUrl" value="http://localhost/file-server/ulbLogos"></property>
+	<property name="databaseSchema" value="receipt"></property>
+	<property name="localDocumentsServerBaseUrl" value="http://localhost/file-server/reports"></property>
 </bean>
 
 <tx:annotation-driven transaction-manager="transactionManagerNonJTA" />
  
 
 	
-	<bean id="dataSource" class = "com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-        <property name="driverClass" value="org.postgresql.Driver" />
+	<bean id="dataSource" class = "org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="org.postgresql.Driver" />
 
+<!-- 	<property name="url" value="jdbc:postgresql://localhost:5432/FormulaEngine?currentSchema=receipt" />   -->
+<!-- 		<property name="username" value="postgres" />  -->
+<!-- 		<property name="password" value="admin" /> -->
 
+		<property name="url" value="jdbc:postgresql://103.249.96.234:5434/report?currentSchema=receipt" />  
+		<property name="username" value="report" /> 
+		<property name="password" value="report#2017" />
 
-		<property name="jdbcUrl" value="jdbc:postgresql://localhost:5432/FormulaEngine?currentSchema=receipt" />  
-		<property name="user" value="postgres" /> 
-		<property name="password" value="admin" />
-
-        <property name="initialPoolSize" value="3" />
-		<property name="minPoolSize" value="6" />
-		<property name="maxPoolSize" value="25" />
-		<property name="acquireIncrement" value="3" />
-		<property name="maxStatements" value="0" />
-		<!-- retries -->
-		<property name="acquireRetryAttempts" value="30" />
-		<property name="acquireRetryDelay" value="1000" /> <!-- 1s -->
-		<property name="breakAfterAcquireFailure" value="false" />
-		<!-- refreshing connections -->
-		<property name="maxIdleTime" value="180" /> <!-- 3min -->
-		<property name="maxConnectionAge" value="10" /> <!-- 1h -->
-		<!-- timeouts and testing -->
-		<property name="checkoutTimeout" value="5000" /> <!-- 5s -->
-		<property name="idleConnectionTestPeriod" value="60" /> <!-- 60 -->
-		<property name="testConnectionOnCheckout" value="true" />
-		<property name="preferredTestQuery" value="SELECT 1" />
-	    <property name="testConnectionOnCheckin" value="true" />
+        <property name="initialSize" value="10" />
+		<property name="maxActive" value="30" />
+		<property name="removeAbandoned" value="true" />	
+		
+		<property name="maxIdle" value="8" />
+		<property name="minIdle" value="0" />
+		<property name="validationQuery" value="SELECT 1" />
  </bean>
 	
 

@@ -5,7 +5,6 @@ import static net.sf.dynamicreports.report.builder.DynamicReports.col;
 import static net.sf.dynamicreports.report.builder.DynamicReports.report;
 import static net.sf.dynamicreports.report.builder.DynamicReports.type;
 
-import java.awt.Font;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
@@ -22,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.innowave.mahaulb.reports.data.Report;
+import com.innowave.mahaulb.reports.data.ULBLogoMapper;
 import com.innowave.mahaulb.reports.util.ConfUtil;
 import com.innowave.mahaulb.reports.util.ReportException;
 import com.innowave.mahaulb.reports.util.Templates;
@@ -53,16 +54,24 @@ public class ReportFromDb {
 		build(query);
 	}
 	
-	public void generateReport(String query, List<Column> columns, String reportName) {
-		build(query, columns, reportName, null, null);
+//	public void generateReport(String query, List<Column> columns, String reportName) {
+//		build(query, columns, reportName, null, null, null);
+//	}
+//	
+//	public void generateReportBetweenDateRange(String query, List<Column> columns, String reportName, String fromDate, String toDate) {
+//		build(query, columns, reportName, fromDate, toDate, null);
+//	}
+//	
+	public void generateReport(String query, List<Column> columns, String reportName, String ext, ULBLogoMapper logoMapper) {
+		build(query, columns, reportName, null, null, ext ,logoMapper);
 	}
 	
-	public void generateReportBetweenDateRange(String query, List<Column> columns, String reportName, String fromDate, String toDate) {
-		build(query, columns, reportName, fromDate, toDate);
+	public void generateReportBetweenDateRange(String query, List<Column> columns, String reportName, String fromDate, String toDate, String ext, ULBLogoMapper logoMapper) {
+		build(query, columns, reportName, fromDate, toDate, ext, logoMapper);
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private void build(String query, List<Column> columns, String repName, String fromDate, String toDate) {
+	private void build(String query, List<Column> columns, String repName, String fromDate, String toDate, String ext, ULBLogoMapper logoMapper) {
 		Connection connection = null;
 		try {
 			JasperReportBuilder report = report();
@@ -76,18 +85,51 @@ public class ReportFromDb {
 			
 			JasperReportBuilder builder = report
 			  .setTemplate(Templates.reportTemplate)
-			  .title(Templates.createTitleComponent("From Innowave Data Warehouse"));
+			  //.title(Templates.createTitleComponent("From Innowave Data Warehouse"));
+			  .title(Templates.createTitleLabels(logoMapper, repName));
 			 if(fromDate != null && toDate != null) {
 				 builder = builder.pageHeader(cmp.text("From Date: "+fromDate+"           To Date: "+toDate));
 			 }
 			  
 			
-			builder.pageFooter(Templates.footerComponent, cmp.line())
+			 builder = builder.pageFooter(Templates.footerComponent, cmp.line())
 			 // .setDataSource(createDataSource())
 			  .setDataSource(query, connection)
-			  .highlightDetailOddRows()
-			  .toPdf(new FileOutputStream(confUtil.getDocumentsLocation()+File.separator+repName+".pdf"));
+			  .highlightDetailOddRows();
+			 
+			 	if(ext == null) {
+			 		FileOutputStream fos = new FileOutputStream(confUtil.getDocumentsLocation()+File.separator+repName+".pdf");
+			 		builder.toPdf(fos);
+			 		fos.close();
+			 	}
+			 	else if(ext.equals("csv") || ext.equals("xls")){
+			 		FileOutputStream fos = new FileOutputStream(confUtil.getDocumentsLocation()+File.separator+repName+".xls");
+			 		builder.toXls(fos);
+			 		fos.close();
+			 	}
+			 	else if(ext.equals("csv")) {
+			 		FileOutputStream fos = new FileOutputStream(confUtil.getDocumentsLocation()+File.separator+repName+".docx");
+			 		builder.toDocx(fos);
+			 		fos.close();
+			 	}
+			 	else if(ext.equals("html")) {
+			 		FileOutputStream fos = new FileOutputStream(confUtil.getDocumentsLocation()+File.separator+repName+".html");
+			 		builder.toHtml(fos);
+			 		fos.close();
+			 	}
+			 	else if(ext.equals("pdf")) {
+			 		FileOutputStream fos = new FileOutputStream(confUtil.getDocumentsLocation()+File.separator+repName+".pdf");
+			 		builder.toPdf(fos);
+			 		fos.close();
+			 	}
+			 	else if(ext.equals("docx")) {
+			 		FileOutputStream fos = new FileOutputStream(confUtil.getDocumentsLocation()+File.separator+repName+".docx");
+			 		builder.toPdf(fos);
+			 		fos.close();
+			 	}
+			  
 			 // .show();
+			
 			connection.close();
 		} catch (DRException e) {
 			e.printStackTrace();

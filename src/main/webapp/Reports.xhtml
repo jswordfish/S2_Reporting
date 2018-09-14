@@ -107,10 +107,24 @@ Download
 	
 <h:column>  
 <f:facet name="header">Re-Run Report</f:facet>  
-<p:commandLink  value="Generate Report" action="#{reportManager.generateReportFromOutside(report)}"  ajax="true"   class="btn btn-primary" style="color:white" >   
+<p:commandLink  value="Generate Report As PDF" action="#{reportManager.generateReportFromOutside(report, 'pdf')}"  ajax="true"   class="btn btn-primary" style="color:white" >   
 	<f:ajax execute="@form" render="@none" />	
 </p:commandLink>
-</h:column>  	
+</h:column>  
+
+<h:column>  
+<f:facet name="header">Re-Run Report</f:facet>  
+<p:commandLink  value="Generate Report As Excel" action="#{reportManager.generateReportFromOutside(report, 'xls')}"  ajax="true"   class="btn btn-primary" style="color:white" >   
+	<f:ajax execute="@form" render="@none" />	
+</p:commandLink>
+</h:column>	
+
+<h:column>  
+<f:facet name="header">Re-Run Report</f:facet>  
+<p:commandLink  value="Generate Report As Word Doc" action="#{reportManager.generateReportFromOutside(report, 'docx')}"  ajax="true"   class="btn btn-primary" style="color:white" >   
+	<f:ajax execute="@form" render="@none" />	
+</p:commandLink>
+</h:column>
 
 <h:column>  
 <f:facet name="header">Update</f:facet>  

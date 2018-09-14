@@ -14,14 +14,18 @@ import org.hibernate.annotations.Type;
 @Entity
 @NamedQueries({
 	@NamedQuery(name="Report.getUniqueReport", 
-			query="SELECT r FROM Report r WHERE r.reportName=:reportName")
+			query="SELECT r FROM Report r WHERE r.reportName=:reportName"),
+	@NamedQuery(name="Report.getReportsCreatedWithUIBuilder", 
+	query="SELECT r FROM Report r WHERE r.newVersion=:newVersion"),
+	@NamedQuery(name="Report.getReportsByUlbName", 
+	query="SELECT r FROM Report r WHERE r.ulb=:ulb")
 })
 public class Report extends Base{
 
 	@Column(nullable = false)
 	String reportName;
 	
-	@Column(nullable = false)
+	@Column(nullable = false, columnDefinition="text")
 	String query;
 	
 	@Transient
@@ -48,6 +52,33 @@ public class Report extends Base{
 	@Lob
 	@Type(type = "text")
 	String selectedTablesJson;
+	
+	String ulbNameUsedForLogos;
+	
+	String ulb;
+	
+	String moduleName;
+	
+	@Transient
+	String user;
+	
+		
+	@Transient
+	WhereClause whereClause;
+	
+	@Lob
+	@Type(type = "text")
+	String whereClauseJson;
+	
+	@Transient
+	FromClause fromClause;
+	
+	@Lob
+	@Type(type = "text")
+	String fromClauseJson;
+	
+	Boolean newVersion = false;
+	String schemaName;
 
 	public String getReportName() {
 		return reportName;
@@ -135,6 +166,86 @@ public class Report extends Base{
 
 	public void setDateRangeParam(String dateRangeParam) {
 		this.dateRangeParam = dateRangeParam;
+	}
+
+	public String getUlbNameUsedForLogos() {
+		return ulbNameUsedForLogos;
+	}
+
+	public void setUlbNameUsedForLogos(String ulbNameUsedForLogos) {
+		this.ulbNameUsedForLogos = ulbNameUsedForLogos;
+	}
+
+	public String getUlb() {
+		return ulb;
+	}
+
+	public void setUlb(String ulb) {
+		this.ulb = ulb;
+	}
+
+	public WhereClause getWhereClause() {
+		return whereClause;
+	}
+
+	public void setWhereClause(WhereClause whereClause) {
+		this.whereClause = whereClause;
+	}
+
+	public FromClause getFromClause() {
+		return fromClause;
+	}
+
+	public void setFromClause(FromClause fromClause) {
+		this.fromClause = fromClause;
+	}
+
+	public String getWhereClauseJson() {
+		return whereClauseJson;
+	}
+
+	public void setWhereClauseJson(String whereClauseJson) {
+		this.whereClauseJson = whereClauseJson;
+	}
+
+	public String getFromClauseJson() {
+		return fromClauseJson;
+	}
+
+	public void setFromClauseJson(String fromClauseJson) {
+		this.fromClauseJson = fromClauseJson;
+	}
+
+	public Boolean getNewVersion() {
+		return newVersion;
+	}
+
+	public void setNewVersion(Boolean newVersion) {
+		this.newVersion = newVersion;
+	}
+
+	public String getModuleName() {
+		return moduleName;
+	}
+
+	public void setModuleName(String moduleName) {
+		this.moduleName = moduleName;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
+
+	public String getSchemaName() {
+		return schemaName;
+	}
+
+	public void setSchemaName(String schemaName) {
+		this.schemaName = schemaName;
 	}
 	
 	

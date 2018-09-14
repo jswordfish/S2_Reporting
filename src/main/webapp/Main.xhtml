@@ -152,6 +152,25 @@
 					<tr>
 						<td> <p:inputText id="reportName" value="#{reportManager.report.reportName}"  styleClass="fontClass"  disabled="#{not(reportManager.editReportName)}"/></td>
 					</tr>
+					
+					<tr>
+						<td>
+							 <h:outputLabel for="ulbName-id"  styleClass="general" >Select ULB</h:outputLabel>  
+							
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<h:selectOneMenu id="ulbName" value="#{reportManager.report.ulb}" styleClass="general" >  
+												 <f:selectItems value="#{reportManager.ulbnames}"
+												    var="name"
+												    itemValue="#{name}"
+												    itemLabel="#{name}" /> 
+									
+											</h:selectOneMenu>
+						</td>
+						
+					</tr>
 					<tr>
 						 <td><h:outputLabel for="queryBox"  styleClass="fontClass" >Build Query</h:outputLabel>  </td>
 					</tr>
@@ -215,10 +234,16 @@
 		</div>
 	<b><hr/> </b>
  
-		<p:commandButton value="Generate Report" action="#{reportManager.generateReport}" ajax="true"  >
+		<p:commandButton value="Generate Report In Pdf" action="#{reportManager.generateReport('pdf')}" ajax="true"  >
 						<f:ajax execute="@form" render="@none" />	
 					</p:commandButton>  
-		<p:commandButton value="Save Report" action="#{reportManager.saveReport}"   >
+		<p:commandButton value="Save Report In PDF" action="#{reportManager.saveReport('pdf')}"   >
+			
+		</p:commandButton>
+		<p:commandButton value="Generate Report In Excel" action="#{reportManager.generateReport('xls')}" ajax="true"  >
+						<f:ajax execute="@form" render="@none" />	
+					</p:commandButton>  
+		<p:commandButton value="Save Report In Excel" action="#{reportManager.saveReport('xls')}"   >
 			
 		</p:commandButton>  
 		

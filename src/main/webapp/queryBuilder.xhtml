@@ -1,0 +1,336 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core" xmlns:a="http://xmlns.jcp.org/jsf" xmlns:p="http://primefaces.org/ui" xmlns:pt="http://xmlns.jcp.org/jsf/passthrough" xmlns:c="http://xmlns.jcp.org/jsp/jstl/core">
+	
+	
+<h:head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1" http-equiv="X-UA-Conpatible" />
+    <h:outputStylesheet library="css" name="bootstrap.min.css" />
+    
+    <link type="text/css" rel="stylesheet" href="css/twenty20.css" />
+    <link type="text/css" rel="stylesheet" href="css/response.css" />
+    <title>Query Builder</title>
+
+</h:head>
+
+
+
+<h:body>  
+ 
+
+       
+	
+	<h:form id="reportQueryForm" enctype="multipart/form-data" >  
+			
+		<div class="panel panel-default panel-table">
+		    <div class="panel-heading">
+			<div class="tr">
+			    <div class="td"><b>Build From Clause (Query LHS) </b></div>
+			    <div class="td"><b>Add Rules and build Where Clause (Query RHS)</b></div>
+			    
+			</div>
+		    </div>
+		    <div class="panel-body">
+			<div class="tr">
+			    <div class="td">
+			    
+				<p:dataTable id="fromQuery" value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field" emptyMessage="No columns prsent. Close this dialog. Select fields and then re-open" style="width:500px;">
+
+					     <p:column headerText="Column Alias ">
+						    <h:inputText value="#{field.column.title}" />
+						</p:column>
+						
+					     <p:column headerText="Column Name">
+						    <h:outputText value="#{field.column.field}" />
+						</p:column>
+						
+						<p:column headerText="Select Function or None">
+						    <h:selectOneMenu id="operators" value="#{field.function}" styleClass="general"  valueChangeListener="#{field.valueChanged}">  
+									<p:ajax event="change" partialSubmit="true" update="reportQueryForm:fromQuery" />
+									
+									 <f:selectItems value="#{reportManagerNew.queryBuilder.functions}"
+								            var="func"
+								            itemValue="#{func}"
+								            itemLabel="#{func}" /> 
+							 
+								</h:selectOneMenu>
+						</p:column>
+						
+						<p:column headerText="Select Function Value If Applicable">
+						     <h:inputText value="#{field.functionValue}" disabled="#{not(field.functionValueEdit)}"  pt:placeholder="#{field.placeholder}">
+							
+							</h:inputText>
+						</p:column>
+
+					    
+					</p:dataTable>
+			    
+				
+			     <p:commandLink  value="Re-Generate From Clause" actionListener="#{reportManagerNew.queryBuilder.generateAllQuery}"     class="btn btn-primary" style="color:white" >   
+								
+							</p:commandLink>
+				 
+
+
+			    </div>
+			    <div class="td">
+			    <h:outputLabel for="reportName"  styleClass="bitBold" >Generated Query</h:outputLabel>
+			    <br/>
+			    <p:inputTextarea id="queryBox" value="#{reportManagerNew.queryBuilder.query}" class="form-control" style="font-weight:bold, font-size:10"  pt:required="required"   />
+			   
+			    <br/>
+			   
+			    
+			      <p:commandLink  value="Add Group" actionListener="#{reportManagerNew.queryBuilder.addGroup}"     class="btn btn-primary" style="color:white" >   
+								
+							</p:commandLink>
+			    
+				<p:dataTable id="groups" var="group" value="#{reportManagerNew.queryBuilder.whereClause.groups}"  emptyMessage="No Group Added" style="width:700px;">
+					<p:column>
+						  <p:column headerText="Table Name ">
+							   <b> <h:outputText value="Table - #{table.tableName}. Edit the Column Alias field to something you like to see on the report. " styleClass="fontClass" /></b>
+							</p:column>
+							
+							  <p:commandLink  value="Delete Group" action="#{reportManagerNew.queryBuilder.deleteGroup(group)}"  ajax="true"   class="btn btn-primary" style="color:white" >   
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandLink>
+						
+						<p:dataTable id="subDataTable" value="#{group.rules}" var="rule" emptyMessage="No columns prsent. Check out with Admin." style="width:600px;">
+							<p:column style="width:500px;">
+						
+							    <p:column headerText="Column Name" style="width:90%;">
+								    <h:outputText value="#{rule.columnValue.column.field}" /> 
+								     <h:selectOneMenu id="operators" value="#{rule.operator}"  >  
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.operators}"
+											    var="op"
+											    itemValue="#{op}"
+											    itemLabel="#{op}" /> 
+									 
+										</h:selectOneMenu>
+								</p:column>
+								
+								
+								
+								<p:column headerText="Enter/Select Value" style="width:90%;">
+							
+									
+									 
+										<input type="date" id="dateField" a:value="#{rule.columnValue.value}"  rendered="#{rule.columnValue.column.dataType.contains('date') and !rule.columnValue.mapFromOtherTable}" />
+										<h:outputText value="#{rule.columnValue.dateValue}" rendered="#{rule.columnValue.column.dataType.contains('date') and !rule.columnValue.mapFromOtherTable}" />
+									
+										<h:inputText id="string-id" value="#{rule.columnValue.value}"   styleClass="fontClass" rendered="#{(not rule.columnValue.column.dataType.contains('date')) and !rule.columnValue.mapFromOtherTable}" >  
+								
+										</h:inputText> 
+										
+										<h:selectOneMenu  value="#{rule.columnValue.value}"   styleClass="fontClass" rendered="#{rule.columnValue.mapFromOtherTable == true}">  
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.toFields}" var="toField"
+											    itemValue="#{toField.field}"
+											    itemLabel="#{toField.field}" /> 
+									
+										</h:selectOneMenu>
+										
+									
+								</p:column>
+								
+								 <p:column headerText="Logical Operator" style="width:90%;">
+								   
+								     <h:selectOneMenu id="logicaloperators" value="#{rule.logicalOperator}"  >  
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.logicalOperators}"
+											    var="op"
+											    itemValue="#{op}"
+											    itemLabel="#{op}" /> 
+									 
+										</h:selectOneMenu>
+								</p:column>
+								
+								 <p:column headerText="Delete Rule" style="width:90%;">
+								    <p:commandLink  value="Delete" action="#{reportManagerNew.queryBuilder.deleteRule(group, rule)}"  ajax="true"   class="btn btn-primary" style="color:white" >   
+										<f:ajax execute="@form" render="@none" />	
+									</p:commandLink>
+								    
+								  
+								</p:column>
+							</p:column>
+						    
+						</p:dataTable>
+						
+						  <p:column headerText="Select ">
+							<h:selectOneMenu  value="#{reportManagerNew.queryBuilder.toFieldAdded}"   styleClass="fontClass" >  
+									 <f:selectItems value="#{reportManagerNew.queryBuilder.toFields}" var="toField"
+								            itemValue="#{toField.field}"
+								            itemLabel="#{toField.field}" /> 
+							
+								</h:selectOneMenu>
+							</p:column>
+						
+						   <p:commandLink  value="Add Rule" action="#{reportManagerNew.queryBuilder.addRule(group, false)}"  ajax="true"   class="btn btn-primary" style="color:white" >   
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandLink>
+							
+							 <p:commandLink  value="Add Rule to Map from Other Table" action="#{reportManagerNew.queryBuilder.addRule(group, true)}"  ajax="true"   class="btn btn-primary" style="color:white" >   
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandLink>
+						
+						
+						
+								
+						
+					</p:column>
+					
+			        
+				</p:dataTable>
+				<h:outputLabel for="groupBy"  styleClass="fontClass" >Add Group By Clause</h:outputLabel> 
+				<h:selectOneMenu  id="groupBy" value="#{reportManagerNew.queryBuilder.whereClause.groupby}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+										
+				<h:selectOneMenu  id="groupBy2" value="#{reportManagerNew.queryBuilder.whereClause.groupBy2}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+										
+				<h:selectOneMenu  id="groupBy3" value="#{reportManagerNew.queryBuilder.whereClause.groupBy3}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+										
+				<h:selectOneMenu  id="groupBy4" value="#{reportManagerNew.queryBuilder.whereClause.groupBy4}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+										
+				<h:selectOneMenu  id="groupBy5" value="#{reportManagerNew.queryBuilder.whereClause.groupBy5}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+				<br/>						
+				<h:outputLabel for="orderBy"  styleClass="fontClass" >Add Order By Clause</h:outputLabel> 
+				<h:selectOneMenu  id="orderBy" value="#{reportManagerNew.queryBuilder.whereClause.orderby}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+										
+				<h:selectOneMenu  id="orderby2" value="#{reportManagerNew.queryBuilder.whereClause.orderby2}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+										
+				<h:selectOneMenu  id="orderby3" value="#{reportManagerNew.queryBuilder.whereClause.orderby3}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+										
+				<h:selectOneMenu  id="orderby4" value="#{reportManagerNew.queryBuilder.whereClause.orderby4}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+										
+				<h:selectOneMenu  id="orderby5" value="#{reportManagerNew.queryBuilder.whereClause.orderby5}"   styleClass="fontClass">  
+											<f:selectItem itemLabel="None" itemValue="None"/>
+											 <f:selectItems value="#{reportManagerNew.queryBuilder.fromClause.fieldFunctions}" var="field"
+											    itemValue="#{field.column.field}"
+											    itemLabel="#{field.column.field}" /> 
+									
+										</h:selectOneMenu>
+				<br/>	
+				<h:outputLabel for="having"  styleClass="fontClass" >Add Having Clause</h:outputLabel> 
+			        <h:inputText id="having" value="#{reportManagerNew.queryBuilder.whereClause.having}" />
+				<input type="button"  class="fontClass" name="removeWhere" value="Remove 'Where' from Query" onClick="javascript:remove();" />
+				<input type="button"  class="fontClass" name="removeOn" value="Remove 'ON' from Query" onClick="javascript:removeOnText();" />
+			        				
+				<br/>
+				<h:outputLabel for="addJoin"  styleClass="fontClass" >Add Type of Join Clause between tables</h:outputLabel> 
+				<p:commandLink  value="Join" action="#{reportManagerNew.queryBuilder.processJoinType('JOIN')}"   ajax="true"    class="btn btn-primary"  style="color:white" >   
+					<f:ajax execute="@form" render="@none" />	
+				</p:commandLink>
+				<p:commandLink  value="Left Join" action="#{reportManagerNew.queryBuilder.processJoinType('LEFT_JOIN')}" ajax="true"    class="btn btn-primary"  style="color:white" >   
+					<f:ajax execute="@form" render="@none" />	
+				</p:commandLink>
+				<p:commandLink  value="Right Join" action="#{reportManagerNew.queryBuilder.processJoinType('RIGHT_JOIN')}"  ajax="true"    class="btn btn-primary"  style="color:white" >   
+					<f:ajax execute="@form" render="@none" />	
+				</p:commandLink>
+				<p:commandLink  value="Full Join" action="#{reportManagerNew.queryBuilder.processJoinType('FULL_JOIN')}"   ajax="true"    class="btn btn-primary"  style="color:white" >   
+					<f:ajax execute="@form" render="@none" />	
+				</p:commandLink>
+				<p:commandLink  value="Cross Join" action="#{reportManagerNew.queryBuilder.processJoinType('CROSS_JOIN')}"   ajax="true"    class="btn btn-primary"  style="color:white" >   
+					<f:ajax execute="@form" render="@none" />	
+				</p:commandLink>
+				<br/>
+				<br/>
+				<h:outputLabel for="limit"  styleClass="fontClass" >Add Limit</h:outputLabel> 
+			        <h:inputText id="limit" value="#{reportManagerNew.queryBuilder.whereClause.limit}" />
+				
+				
+				 <p:commandLink  value="Generate Query" action="#{reportManagerNew.queryBuilder.generateAllQuery}"  ajax="true"   class="btn btn-primary" style="color:white" >   
+								<f:ajax execute="@form" render="@none" />	
+							</p:commandLink>
+							
+				<p:commandLink  value="Validate  Query" action="#{reportManagerNew.queryBuilder.validate}"   ajax="true"   class="btn btn-primary" style="color:white" >   
+					<f:ajax execute="@form" render="@none" />	
+				</p:commandLink>
+							
+				<p:commandLink  value="Save  Query" action="#{reportManagerNew.queryBuilder.save}"   ajax="true"   class="btn btn-primary" style="color:white" >   
+					<f:ajax execute="@form" render="@none" />	
+				</p:commandLink>			
+				
+				
+				<p:link  value="Go Back Without Saving Query" outcome="MainNew"  ajax="true"   class="btn btn-primary" style="color:white" >   
+					<f:ajax execute="@form" render="@none" />	
+				</p:link>
+								
+					
+			    </div>
+			    
+			</div>
+		    </div>
+		   
+		</div>
+	
+		</h:form>
+	
+		<script>
+			function remove(){
+			var query = document.getElementById("reportQueryForm:queryBox").value;
+			query = query.replace('where ', '');
+			document.getElementById("reportQueryForm:queryBox").value = query;
+			}
+			
+			function removeOnText(){
+			var query = document.getElementById("reportQueryForm:queryBox").value;
+			query = query.replace('ON ', '');
+			document.getElementById("reportQueryForm:queryBox").value = query;
+			}
+		</script>
+  
+</h:body>  
+</html>  

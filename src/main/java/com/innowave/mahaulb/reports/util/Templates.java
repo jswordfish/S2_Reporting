@@ -29,8 +29,11 @@ import static net.sf.dynamicreports.report.builder.DynamicReports.tableOfContent
 import static net.sf.dynamicreports.report.builder.DynamicReports.template;
 
 import java.awt.Color;
-import java.awt.Font;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
+
+import com.innowave.mahaulb.reports.data.ULBLogoMapper;
 
 import net.sf.dynamicreports.report.base.expression.AbstractValueFormatter;
 import net.sf.dynamicreports.report.builder.HyperLinkBuilder;
@@ -39,7 +42,9 @@ import net.sf.dynamicreports.report.builder.component.ComponentBuilder;
 import net.sf.dynamicreports.report.builder.datatype.BigDecimalType;
 import net.sf.dynamicreports.report.builder.style.StyleBuilder;
 import net.sf.dynamicreports.report.builder.tableofcontents.TableOfContentsCustomizerBuilder;
+import net.sf.dynamicreports.report.constant.HorizontalImageAlignment;
 import net.sf.dynamicreports.report.constant.HorizontalTextAlignment;
+import net.sf.dynamicreports.report.constant.Markup;
 import net.sf.dynamicreports.report.constant.VerticalTextAlignment;
 import net.sf.dynamicreports.report.definition.ReportParameters;
 
@@ -119,15 +124,26 @@ public class Templates {
 		HyperLinkBuilder link = hyperLink("http://www.innowave.com");
 		dynamicReportsComponent =
 		  cmp.horizontalList(
-		  //	cmp.image(Templates.class.getResource("images/dynamicreports.png")).setFixedDimension(60, 60),
+				 // cmp.image("images/image_left.jpeg").setHorizontalImageAlignment(HorizontalImageAlignment.LEFT),
 		  	cmp.verticalList(
-		  		cmp.text("Innowave Reports").setStyle(bold22CenteredStyle).setHorizontalTextAlignment(HorizontalTextAlignment.LEFT),
-		  		cmp.text("http://www.innowave.com").setStyle(italicStyle).setHyperLink(link))).setFixedWidth(300);
-
-		footerComponent = cmp.pageXofY()
-		                     .setStyle(
-		                     	stl.style(boldCenteredStyle)
-		                     	   .setTopBorder(stl.pen1Point()));
+		  		//cmp.text("Innowave Reports").setStyle(bold22CenteredStyle).setHorizontalTextAlignment(HorizontalTextAlignment.LEFT),
+		  		//cmp.text("http://www.innowave.com").setStyle(italicStyle).setHyperLink(link))).setFixedWidth(300);
+		  		
+		  		//cmp.text("ULB Name - Test ULB"),
+		  		//cmp.text("Report Name - Test Report"))).setFixedWidth(300);
+		//	cmp.image("images/image_right.jpeg").setHorizontalImageAlignment(HorizontalImageAlignment.RIGHT));
+		  	));
+//		footerComponent = cmp.pageXofY()
+//		                     .setStyle(
+//		                     	stl.style(boldCenteredStyle)
+//		                     	   .setTopBorder(stl.pen1Point()));
+		footerComponent = cmp.verticalList().add(cmp.pageXofY()
+                .setStyle(
+                    	stl.style(boldCenteredStyle)
+                    	   .setTopBorder(stl.pen1Point())), cmp.text("Report Generated from Adhoc – Tool").setStyle(italicStyle));
+				
+				
+				
 	}
 
 	/**
@@ -137,11 +153,56 @@ public class Templates {
 		return cmp.horizontalList()
 		        .add(
 		        	dynamicReportsComponent,
-		        	cmp.text(label).setStyle(bold18CenteredStyle).setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT))
+		        	//cmp.image("images/ULB LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.LEFT).setFixedDimension(80, 80),
+		        	cmp.image("images/ULB LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.LEFT).setFixedDimension(80, 80),
+			  		cmp.text("ULB Name - Test ULB <br> Report Name - Test Report").setStyle(stl.style().bold().setFontSize(16).setFontName("gnu-free").setMarkup(Markup.HTML)).setHorizontalTextAlignment(HorizontalTextAlignment.CENTER),
+			  		cmp.image("images/MAH LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.RIGHT).setFixedDimension(50, 50))
 		        .newRow()
 		        .add(cmp.line())
 		        .newRow()
-		        .add(cmp.verticalGap(10));
+		        .add(cmp.verticalGap(5));
+	}
+	
+	/**
+	 * Creates custom component which is possible to add to any report band component
+	 */
+	public static ComponentBuilder<?, ?> createTitleLabels(ULBLogoMapper logoMapper, String reportName) {
+		return cmp.horizontalList()
+		        .add(
+		        	dynamicReportsComponent,
+		        	//cmp.image("images/ULB LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.LEFT).setFixedDimension(75, 75),
+		        	cmp.image(logoMapper != null ? logoMapper.getLeftLogoPath() : "images/ULB LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.LEFT).setFixedDimension(75, 75),
+			  		cmp.text("ULB Name - "+(logoMapper != null? logoMapper.getUlbName():"ALL")+" <br> Report Name - "+reportName).setStyle(stl.style().bold().setFontSize(16).setFontName("gnu-free").setMarkup(Markup.HTML)).setHorizontalTextAlignment(HorizontalTextAlignment.CENTER),
+			  		cmp.image(logoMapper !=null?logoMapper.getRightLogoPath():"images/MAH LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.RIGHT).setFixedDimension(50, 50))
+		        .newRow()
+		        .add(cmp.line())
+		        .newRow()
+		        .add(cmp.verticalGap(5));
+	}
+	
+	/**
+	 * Creates custom component which is possible to add to any report band component
+	 */
+	public static ComponentBuilder<?, ?> createTitleLabels(ULBLogoMapper logoMapper, String reportName, String user) {
+		return cmp.horizontalList()
+		        .add(
+		        	dynamicReportsComponent,
+		        	//cmp.image("images/ULB LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.LEFT).setFixedDimension(75, 75),
+		        	cmp.image(logoMapper != null ? logoMapper.getLeftLogoPath() : "images/ULB LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.LEFT).setFixedDimension(75, 75),
+		        	cmp.text((logoMapper != null? logoMapper.getUlbName():"ALL")+" <br> Report Name - "+reportName).setStyle(stl.style().bold().setFontSize(16).setFontName("gnu-free").setMarkup(Markup.HTML)).setHorizontalTextAlignment(HorizontalTextAlignment.CENTER),
+		        	//	cmp.text("ULB Name - "+(logoMapper != null? logoMapper.getUlbName():"ALL")+" <br> Report Name - "+reportName).setStyle(stl.style().bold().setFontSize(16).setFontName("gnu-free").setMarkup(Markup.HTML)).setHorizontalTextAlignment(HorizontalTextAlignment.CENTER),
+			  		cmp.image(logoMapper !=null?logoMapper.getRightLogoPath():"images/MAH LOGO.png").setHorizontalImageAlignment(HorizontalImageAlignment.RIGHT).setFixedDimension(50, 50))
+		        .newRow()
+		        .add(cmp.text("Generated by "+user+". Generated at "+getCurrentDateAndTime()))
+		        .newRow()
+		        .add(cmp.verticalGap(5));
+	}
+	
+	private static String getCurrentDateAndTime() {
+		Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        String strDate = sdf.format(cal.getTime());
+        return strDate;
 	}
 
 	public static CurrencyValueFormatter createCurrencyValueFormatter(String label) {

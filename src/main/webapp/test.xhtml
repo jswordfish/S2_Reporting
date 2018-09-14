@@ -1,0 +1,128 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
+<html xmlns="http://www.w3.org/1999/xhtml"  
+xmlns:h="http://xmlns.jcp.org/jsf/html"  
+xmlns:f="http://xmlns.jcp.org/jsf/core"
+xmlns:p="http://primefaces.org/ui"
+xmlns:ui="http://java.sun.com/jsf/facelets"
+xmlns:c="http://xmlns.jcp.org/jsp/jstl/core"
+xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+
+<h:head>  
+<title>Login to Report Server</title>  
+<h:outputStylesheet name="css/bootstrap.min.css"/>  
+
+
+<link type="text/css" rel="stylesheet" href="css/twenty20.css" />
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+	integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+	crossorigin="anonymous"></script>
+	
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet" > </link>
+
+<script src="resources/js/query-builder.standalone.min.js"></script>
+
+<link href="css/query-builder.default.min.css" rel="stylesheet" > </link>
+<script src="resources/js/query-builder.min.js"></script>
+</h:head>  
+<body>
+
+
+<div id="builder"></div>
+
+<script>
+
+var rules_basic = {
+  condition: 'AND',
+  rules: [{
+    id: 'price',
+    operator: 'less',
+    value: 10.25
+  }, {
+    condition: 'OR',
+    rules: [{
+      id: 'category',
+      operator: 'equal',
+      value: 2
+    }, {
+      id: 'category',
+      operator: 'equal',
+      value: 1
+    }]
+  }]
+};
+
+  $('#builder').queryBuilder({
+   filters: [{
+    id: 'name',
+    label: 'Name',
+    type: 'string'
+  }, {
+    id: 'category',
+    label: 'Category',
+    type: 'integer',
+    input: 'select',
+    values: {
+      1: 'Books',
+      2: 'Movies',
+      3: 'Music',
+      4: 'Tools',
+      5: 'Goodies',
+      6: 'Clothes'
+    },
+    operators: ['equal', 'not_equal', 'in', 'not_in', 'is_null', 'is_not_null']
+  }, {
+    id: 'in_stock',
+    label: 'In stock',
+    type: 'integer',
+    input: 'radio',
+    values: {
+      1: 'Yes',
+      0: 'No'
+    },
+    operators: ['equal']
+  }, {
+    id: 'price',
+    label: 'Price',
+    type: 'double',
+    validation: {
+      min: 0,
+      step: 0.01
+    }
+  }, {
+    id: 'id',
+    label: 'Identifier',
+    type: 'string',
+    placeholder: '____-____-____',
+    operators: ['equal', 'not_equal'],
+    validation: {
+      format: /^.{4}-.{4}-.{4}$/
+    }
+  }],
+
+  rules: rules_basic
+  });
+  
+  $('#btn-reset').on('click', function() {
+  $('#builder-basic').queryBuilder('reset');
+});
+
+$('#btn-set').on('click', function() {
+  $('#builder-basic').queryBuilder('setRules', rules_basic);
+});
+
+$('#btn-get').on('click', function() {
+  var result = $('#builder-basic').queryBuilder('getRules');
+  
+  if (!$.isEmptyObject(result)) {
+    alert(JSON.stringify(result, null, 2));
+  }
+});
+</script>
+   
+  
+  </body>
+</html>  

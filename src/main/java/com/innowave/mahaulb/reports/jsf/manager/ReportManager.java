@@ -28,10 +28,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innowave.mahaulb.reports.data.Report;
 import com.innowave.mahaulb.reports.data.Table;
+import com.innowave.mahaulb.reports.data.ULBLogoMapper;
 import com.innowave.mahaulb.reports.manager.Column;
 import com.innowave.mahaulb.reports.manager.Manager;
 import com.innowave.mahaulb.reports.manager.ReportFromDb;
 import com.innowave.mahaulb.reports.services.ReportService;
+import com.innowave.mahaulb.reports.services.ULBLogoMapperService;
 import com.innowave.mahaulb.reports.util.ConfUtil;
 import com.innowave.mahaulb.reports.util.ReportException;
 import com.test.domain.UserManager;
@@ -74,27 +76,34 @@ public class ReportManager {
 	 @ManagedProperty(value="#{userManager}") 
 	 UserManager userManager;
 	 
+	 List<String> ulbnames;
+	 
+	 transient ULBLogoMapperService logoMapperService;
+	 
 	 String dataTypes[] = {"integer", "string", "date", "dateYearToFraction", "bigDecimal"};
 	@PostConstruct
-	public void init() {
-		if(!getUserManager().getLogin()) {
-			throw new ReportException("Can not access page without Authentication");
-		}
+	public void init() throws SQLException {
+//		if(!getUserManager().getLogin()) {
+//			throw new ReportException("Can not access page without Authentication");
+//		}
 		manager = SpringUtil.getService(Manager.class);
 		reportService = SpringUtil.getService(ReportFromDb.class);
 		service = SpringUtil.getService(ReportService.class);
 		confUtil = SpringUtil.getService(ConfUtil.class);
+		logoMapperService = SpringUtil.getService(ULBLogoMapperService.class);
 		tables = manager.getTablesForSchema("receipt");
 		reports = service.findAll();
 		for(Table tab:tables) {
 			map.put(tab.getTableName(), tab);
 		}
+		
+		 ulbnames = manager.getColumnData( "receipt", "ulb_names", "ulb_name");
 	}
 	
 	public void reload() {
-		if(!getUserManager().getLogin()) {
-			throw new ReportException("Can not access page without Authentication");
-		}
+//		if(!getUserManager().getLogin()) {
+//			throw new ReportException("Can not access page without Authentication");
+//		}
 		reports = service.findAll();
 		
 	}
@@ -127,7 +136,7 @@ public class ReportManager {
 		selectedTabs.clear();
 		for(String table : selectedTables) {
 			Table t = map.get(table);
-			t.setColumns(manager.getColumns2(table));
+			t.setColumns(manager.getColumns2(table, "receipt"));
 			selectedTabs.add(t);
 		}
 	}
@@ -184,7 +193,7 @@ public class ReportManager {
 		this.report = report;
 	}
 	
-	public void generateReport() {
+	public void generateReport(String ext) {
 		try {
 				if(getReport().getReportName() == null || getReport().getReportName().trim().length() == 0) {
 					FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Validation Failed", "Report Name can not be blank");
@@ -217,7 +226,8 @@ public class ReportManager {
 						SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 						Date d = formatter.parse(report.getFromDate());
 						d = formatter.parse(report.getToDate());
-						reportService.generateReportBetweenDateRange(getReport().getQuery(), aggregatedColumns, getReport().getReportName(), report.getFromDate(), report.getToDate());
+						ULBLogoMapper logoMapper = logoMapperService.getUniqueULBLogoMapper(report.getUlb());
+						reportService.generateReportBetweenDateRange(getReport().getQuery(), aggregatedColumns, getReport().getReportName(), report.getFromDate(), report.getToDate(), ext, logoMapper);
 					} catch (ParseException e) {
 						// TODO Auto-generated catch block
 						FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Failure", "Improper Date Releated Data");
@@ -228,16 +238,18 @@ public class ReportManager {
 					
 				}
 				else {
-					reportService.generateReport(getReport().getQuery(), aggregatedColumns, getReport().getReportName() );
+					ULBLogoMapper logoMapper = logoMapperService.getUniqueULBLogoMapper(report.getUlb());
+					reportService.generateReport(getReport().getQuery(), aggregatedColumns, getReport().getReportName(), ext, logoMapper );
 				}
 				
 				
 			}
 			else {
-				reportService.generateReport(getReport().getQuery(), aggregatedColumns, getReport().getReportName() );
+				ULBLogoMapper logoMapper = logoMapperService.getUniqueULBLogoMapper(report.getUlb());
+				reportService.generateReport(getReport().getQuery(), aggregatedColumns, getReport().getReportName(), ext, logoMapper );
 			}
 			
-			getReport().setReportLink(confUtil.getDocumentsServerBaseUrl()+"/"+getReport().getReportName()+".pdf");
+			getReport().setReportLink(confUtil.getDocumentsServerBaseUrl()+"/"+getReport().getReportName()+"."+ext);
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Go to "+getReport().getReportLink()+" to download the report");
 			RequestContext.getCurrentInstance().showMessageInDialog(msg);
 			setQueryValidation("");
@@ -253,7 +265,7 @@ public class ReportManager {
 	 * This method is called from Reports.xhtml page. This has to be a stateless method and no state variable has to be impacted by this.
 	 * @param report
 	 */
-	public void generateReportFromOutside(Report report) {
+	public void generateReportFromOutside(Report report, String ext) {
 		try {
 			/**
 			 * Neccessary because we store columns and tables json in report obj. so it is neccessary to marshal it back to object structure.
@@ -271,9 +283,9 @@ public class ReportManager {
 			for(Table table:report.getSelectedTablesAndColumns()) {
 				aggregatedColumns.addAll(table.getColumns());
 			}
-			
-			reportService.generateReport(report.getQuery(), aggregatedColumns, report.getReportName() );
-			report.setReportLink(confUtil.getDocumentsServerBaseUrl()+"/"+report.getReportName()+".pdf");
+			ULBLogoMapper logoMapper = logoMapperService.getUniqueULBLogoMapper(report.getUlb());
+			reportService.generateReport(report.getQuery(), aggregatedColumns, report.getReportName(), ext, logoMapper );
+			report.setReportLink(confUtil.getDocumentsServerBaseUrl()+"/"+report.getReportName()+"."+ext);
 			FacesMessage msg = new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Go to "+report.getReportLink()+" to download the report");
 			RequestContext.getCurrentInstance().showMessageInDialog(msg);
 		} catch (Exception e) {
@@ -317,7 +329,7 @@ public class ReportManager {
 		this.queryValidation = queryValidation;
 	}
 	
-	public String saveReport() throws JsonProcessingException, SQLException{
+	public String saveReport(String ext) throws JsonProcessingException, SQLException{
 		String val = reportService.validate(getReport().getQuery());
 		if(val.equalsIgnoreCase("Success")) {
 			setQueryValidation("Query Validation Success");
@@ -329,7 +341,7 @@ public class ReportManager {
 			
 			String jsonTables = mapper.writeValueAsString(getReport().getSelectedTables());
 			getReport().setSelectedTablesJson(jsonTables);
-			generateReport();
+			generateReport(ext);
 			service.saveOrUpdate(getReport());
 			setQueryValidation("");
 			return "Reports.xhtml?faces-redirect=false";
@@ -506,4 +518,14 @@ public class ReportManager {
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         return "/login.xhtml?faces-redirect=true";
     }
+
+	public List<String> getUlbnames() {
+		return ulbnames;
+	}
+
+	public void setUlbnames(List<String> ulbnames) {
+		this.ulbnames = ulbnames;
+	}
+	
+	
 }

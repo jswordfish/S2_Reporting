@@ -84,6 +84,28 @@ public class ReportServiceImpl extends BaseServiceImpl<Long, Report> implements 
 		
 		return ret;
 	}
+
+	public List<Report> getReportsWithNewVersion() throws ReportException {
+		Map<String, Boolean> queryParams = new HashMap<String, Boolean>();
+		queryParams.put("newVersion", true);
+		List<Report> reports = findByNamedQueryAndNamedParams(
+				"Report.getReportsCreatedWithUIBuilder", queryParams);
+		return reports;
+	}
+
+	@Override
+	public List<Report> getReportsByULB(String ulb) throws ReportException {
+		// TODO Auto-generated method stub
+		//Report.getReportsByUlbName
+			if(ulb.equalsIgnoreCase("REPORT_ADMIN")) {
+				return getReportsWithNewVersion();
+			}
+		Map<String, String> queryParams = new HashMap<String, String>();
+		queryParams.put("ulb", ulb);
+		List<Report> reports = findByNamedQueryAndNamedParams(
+				"Report.getReportsByUlbName", queryParams);
+		return reports;
+	}
     
     
 	

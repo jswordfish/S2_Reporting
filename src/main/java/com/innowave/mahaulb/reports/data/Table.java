@@ -64,5 +64,24 @@ public class Table {
 		this.identity = identity;
 	}
 	
+	@Override
+	public boolean equals(Object o) {
+		if(!(o instanceof Table)) {
+			return false;
+		}
+		
+		Table t2 = (Table) o;
+		if(this.getTableName().equals(t2.getTableName())) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return getTableName().hashCode();
+	}
+	
 	
 }
